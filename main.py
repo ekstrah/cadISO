@@ -1,6 +1,7 @@
-import cv2
-import numpy as np
-from utils.utils import plus
+from extractor import Extractor
+from utils import Utils
 
 if __name__ == "__main__":
-    print("Hello World!")
+    e = Extractor()
+    print("extractor imported")
+    e.analyze_pdf(Utils.get_all_files("./src/tables"))
