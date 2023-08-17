@@ -7,6 +7,7 @@ class Utils(object):
     img_src = "./src/img"
     table_src = "./src/tables"
     result_src = "./src/results"
+    pure_table_src = "./src/ptables"
 
     @staticmethod
     def plus(a, b):
@@ -26,3 +27,13 @@ class Utils(object):
                 if file.endswith(".png"):
                     file_list.append(os.path.join(subdir, file))
         return file_list
+
+    @staticmethod
+    def init_subdirs():
+        subdir_list = []
+        for subdir, dir, files in os.walk(Utils.table_src):
+            for file in files:
+                if subdir not in subdir_list:
+                    subdir_list.append(subdir)
+        for sub in subdir_list:
+            os.makedirs(sub.replace(Utils.table_src, Utils.pure_table_src), exist_ok=True)
