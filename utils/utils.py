@@ -7,7 +7,6 @@ class Utils(object):
     img_src = "./src/img"
     table_src = "./src/tables"
     result_src = "./src/results"
-    pure_table_src = "./src/ptables"
 
     @staticmethod
     def plus(a, b):
@@ -36,4 +35,4 @@ class Utils(object):
                 if subdir not in subdir_list:
                     subdir_list.append(subdir)
         for sub in subdir_list:
-            os.makedirs(sub.replace(Utils.table_src, Utils.pure_table_src), exist_ok=True)
+            os.makedirs(sub.replace(Utils.table_src, Utils.result_src), exist_ok=True)
