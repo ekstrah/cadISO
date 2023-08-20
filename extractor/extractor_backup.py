@@ -1,10 +1,12 @@
 import cv2
 import pytesseract
+from utils import Utils
+import pandas as pd
 
 
 class Extractor(object):
     def __init__(self):
-        self.DEBUG = True
+        self.DEBUG = False
         pass
 
     def find_tables(self, image):
@@ -91,11 +93,7 @@ class Extractor(object):
             SUBTRACT_FROM_MEAN,
         )
         horizontal = img_bin.copy()
-        # # DEBUG MODE IS TRUE
-        # if self.DEBUG is True:
-        #     cv2.imshow("image", horizontal)
-        #     cv2.waitKey(0)
-        SCALE = 5
+        SCALE = 7
         image_width, image_height = horizontal.shape
         horizontal_kernel = cv2.getStructuringElement(
             cv2.MORPH_RECT, (int(image_width / SCALE), 1)
@@ -106,6 +104,7 @@ class Extractor(object):
         vertical_kernel = cv2.getStructuringElement(
             cv2.MORPH_RECT, (1, int(image_height / SCALE))
         )
+        # vertically_opened = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
         vertically_opened = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
 
         horizontally_dilated = cv2.dilate(
@@ -114,6 +113,11 @@ class Extractor(object):
         vertically_dilated = cv2.dilate(
             vertically_opened, cv2.getStructuringElement(cv2.MORPH_RECT, (1, 70))
         )
+
+        # DEBUG MODE IS TRUE
+        if self.DEBUG is True:
+            cv2.imshow("cell", vertically_opened)
+            cv2.waitKey(0)
 
         mask = horizontally_dilated + vertically_dilated
         contours, heirarchy = cv2.findContours(
@@ -183,12 +187,13 @@ class Extractor(object):
             for j, cell in enumerate(row):
                 word = pytesseract.image_to_string(cell, lang="eng", config="--psm 10")
                 cells.append(word)
-                # DEBUG MODE IS TRUE
-                if self.DEBUG is True:
-                    cv2.imshow("cell", cell)
-                    cv2.waitKey(0)
         return cells
 
-    def to_json(self, cells):
-        keys = cells[:4]
-        print(keys)
+    def to_json(self, cells, file):
+        # keys = cells[:4]
+        keys = ["ID", "QTY", "NO", "DESCRIPTION"]
+        values = cells[4:]
+        n = len(keys)
+        l = [values[i : i + n] for i in range(0, len(values), n)]
+        tdf = pd.DataFrame(l, columns=keys)
+        tdf.to_json(file, orient="records")
