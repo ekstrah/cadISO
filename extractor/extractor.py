@@ -180,7 +180,8 @@ class Extractor(object):
         return cell_images_rows
 
     def extract_cells(self, file) -> list[str]:
-        table = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+        # Have to check whether it is windows or linux
+        table = Utils.open_img(file)
         rows = self.extract_cell_images_from_table(table)
         cells = []
         for i, row in enumerate(rows):
