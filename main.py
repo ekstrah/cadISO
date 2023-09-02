@@ -8,7 +8,7 @@ if __name__ == "__main__":
     files = Utils.get_all_files("./src/tables", ".png")
     print(files)
     for file in files:
-        cells = e.extract_cells(file)
+        cells, rows = e.extract_cells(file)
         print(file)
         e.to_json(cells, file.replace("tables", "results").replace(".png", ".json"))
     print("Done")

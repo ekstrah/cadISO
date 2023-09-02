@@ -181,20 +181,37 @@ class Extractor(object):
 
     def extract_cells(self, file) -> list[str]:
         # Have to check whether it is windows or linux
-        table = Utils.open_img(file)
+        if type(file) == str:
+            table = Utils.open_img(file)
+            print(file)
+        else:
+            table = file
         rows = self.extract_cell_images_from_table(table)
         cells = []
         for i, row in enumerate(rows):
             for j, cell in enumerate(row):
                 word = pytesseract.image_to_string(cell, lang="eng", config="--psm 10")
                 cells.append(word)
-        return cells
+        return cells, len(rows[0])
 
     def to_json(self, cells, file):
+        # keys = cells[:4]
+        tdf = self.to_dataframe(cells)
+        tdf.to_json(file, orient="records")
+
+    def to_dataframe_raw(self, cells, rows):
+        keys = cells[:rows]
+        values = cells[rows:]
+        n = len(keys)
+        l = [values[i : i + n] for i in range(0, len(values), n)]
+        tdf = pd.DataFrame(l, columns=keys)
+        return tdf
+
+    def to_dataframe(self, cells):
         # keys = cells[:4]
         keys = ["ID", "QTY", "NO", "DESCRIPTION"]
         values = cells[4:]
         n = len(keys)
         l = [values[i : i + n] for i in range(0, len(values), n)]
         tdf = pd.DataFrame(l, columns=keys)
-        tdf.to_json(file, orient="records")
+        return tdf
